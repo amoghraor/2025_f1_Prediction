@@ -9,6 +9,10 @@ from sklearn.impute import SimpleImputer
 from xgboost import XGBRegressor
 import os
 from datetime import datetime, timezone
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 os.makedirs("f1_cache", exist_ok=True)
 fastf1.Cache.enable_cache("f1_cache")
@@ -66,7 +70,7 @@ qualifying_2025 = pd.DataFrame({
 qualifying_2025["CleanAirRacePace (s)"] = qualifying_2025["Driver"].map(clean_air_race_pace)
 
 # Fetch weather data from OpenWeather API
-API_KEY = "436ae18e6006af6ca68a47a129f7df43"
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
 lat, lon = 24.4672, 54.6031  
 weather_url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
 
