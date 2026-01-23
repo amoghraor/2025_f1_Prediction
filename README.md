@@ -56,9 +56,8 @@ The Mean Absolute Error (MAE) is used to evaluate how well the model predicts ra
 - Explore **deep learning** models for improved accuracy
 - @mar_antaya on Instagram and TikTok will update with the latest predictions before every race of the 2025 F1 season
 
-## 📜 License
-This project is licensed under the MIT License.
+## 🤝 Credits
 
+Built independently but inspired by [@mar-antaya](https://github.com/mar-antaya/2025_f1_predictions.git). Data sources: FastF1 and OpenWeatherMap.
 
-🏎️ **Start predicting F1 races like a data scientist!** 🚀
 
