@@ -1,62 +1,204 @@
-# 2025_f1_predictions
+# F1 Race Prediction - Supervised Learning Model with Feedback System
 
-#  F1 Predictions 2025 - Machine Learning Model
+## Overview
 
-Welcome to the **F1 Predictions 2025** repository! This project uses **machine learning, FastF1 API data, and historical F1 race results** to predict race outcomes for the 2025 Formula 1 season.
+This enhanced F1 race prediction system uses **supervised learning** with a **feedback loop** to continuously improve predictions based on actual race results. The system integrates deeply with the FastF1 API to extract accurate, real-time race data.
 
-##  Project Overview
-This repository contains a **Gradient Boosting Machine Learning model** that predicts race results based on past performance, qualifying times, and other structured F1 data. The model leverages:
-- FastF1 API for historical race data
-- 2024 race results
-- 2025 qualifying session results
-- Over the course of the season we will be adding additional data to improve our model as well
-- Feature engineering techniques to improve predictions
+## Key Features
 
-##  Data Sources
-- **FastF1 API**: Fetches lap times, race results, and telemetry data
-- **2025 Qualifying Data**: Used for prediction
-- **Historical F1 Results**: Processed from FastF1 for training the model
+### 1. **Supervised Learning Model**
+- Deep Neural Network with uncertainty estimation
+- Predicts race times with confidence intervals
+- Multi-layer architecture (256→128→64→32 neurons)
+- Batch normalization and dropout for regularization
 
-##  How It Works
-1. **Data Collection**: The script pulls relevant F1 data using the FastF1 API.
-2. **Preprocessing & Feature Engineering**: Converts lap times, normalizes driver names, and structures race data.
-3. **Model Training**: A **Gradient Boosting Regressor** is trained using 2024 race results.
-4. **Prediction**: The model predicts race times for 2025 and ranks drivers accordingly.
-5. **Evaluation**: Model performance is measured using **Mean Absolute Error (MAE)**.
+### 2. **Feedback System**
+- **Post-race validation**: Compare predictions with actual results
+- **Error tracking**: Track prediction errors over time
+- **Performance trends**: Analyze model improvement across races
+- **Manual corrections**: Add expert knowledge adjustments
 
-### Dependencies
-- `fastf1`
-- `numpy`
-- `pandas`
-- `scikit-learn`
-- `matplotlib`
+### 3. **Online Learning**
+- **Experience replay buffer**: Stores past predictions and outcomes
+- **Incremental updates**: Retrain model with new race data
+- **Continuous improvement**: Model gets better after each race
 
-## File Structure 
-- For every race the end of the file will be numbered in correlation to the race on the calendar, ex. prediction1 - Australia, prediction2 - China, etc.
+### 4. **Enhanced Features from FastF1 API**
+- **Sector consistency**: Standard deviation of sector times
+- **Speed metrics**: Average and maximum speeds
+- **Throttle analysis**: Average throttle application
+- **Tire compound data**: Dominant tire compounds used
+- **Track status**: Clean lap ratio (avoiding yellow flags)
+- **Historical data**: Can load multiple years of data
 
-##  Usage
-Run the prediction script:
+### 5. **Uncertainty Quantification**
+- **Monte Carlo dropout**: Estimates prediction uncertainty
+- **Confidence intervals**: 95% confidence bounds for each prediction
+- **Risk assessment**: Identifies high-uncertainty predictions
+
+
+
+## Installation
+
 ```bash
-python3 prediction1.py
-```
-Expected output:
-```
- Predicted 2025 Australian GP Winner 
-Driver: Charles Leclerc, Predicted Race Time: 82.67s
-...
- Model Error (MAE): 3.22 seconds
+# Install required packages
+pip install fastf1 pandas numpy scikit-learn torch matplotlib requests python-dotenv --break-system-packages
+
+# Enable F1 cache
+mkdir -p f1_cache model_checkpoints feedback_data
 ```
 
-## Model Performance
-The Mean Absolute Error (MAE) is used to evaluate how well the model predicts race times. Lower MAE values indicate more accurate predictions.
+## Usage
 
-## Future Improvements
-- Incorporate **weather conditions** as a feature
-- Add **pit stop strategies** into the model
-- Explore **deep learning** models for improved accuracy
+### Step 1: Initial Prediction
+
+```python
+# Run the main prediction model
+python f1_supervised_feedback_model.py
+```
+
+**Output:**
+- Predicted race positions with uncertainty
+- Confidence intervals for each driver
+- Training performance metrics
+- Visualization plots
+
+### Step 2: Post-Race Feedback (After the race)
+
+```python
+# Run the feedback system after the race
+python f1_feedback_system.py
+```
+
+**Output:**
+- Comparison of predictions vs actual results
+- Position and time error analysis
+- Detailed feedback report
+- Model performance trends
+
+### Step 3: Model Updates
+
+The model automatically improves through:
+1. **Stored feedback**: All race results are saved
+2. **Experience replay**: Past races help train the model
+3. **Incremental learning**: New data updates weights without full retraining
+
+## Configuration
+
+Create a `race_config_week.py` file which has similar template to `race_config_tempelate.py`
+
+
+
+## Environment Variables
+
+Create a `.env` file:
+
+```bash
+OPENWEATHER_API_KEY=your_api_key_here
+```
+
+## Feature Engineering Details
+
+### Core Features (20 total)
+
+1. **Qualifying Performance**
+   - Raw qualifying time
+   - Weather-adjusted qualifying time
+
+2. **Weather Conditions**
+   - Rain probability
+   - Temperature
+   - Humidity
+   - Wind speed
+
+3. **Team Performance**
+   - Team performance score (normalized points)
+
+4. **Race Pace**
+   - Clean air race pace from practice
+
+5. **Sector Analysis** (from FastF1)
+   - Sector 1/2/3 mean times
+   - Sector 1/2/3 consistency (std deviation)
+
+6. **Speed Metrics** (from FastF1)
+   - Average speed
+   - Maximum speed
+   - Average throttle application
+
+7. **Track Behavior**
+   - Clean lap ratio (avoiding yellow flags)
+
+
+
+### Loss Function
+
+```python
+# Combined loss: prediction error + uncertainty regularization
+loss = MSE(predicted_mean, actual_time) + 0.1 * mean(predicted_variance)
+```
+
+### Training Process
+
+- **Epochs**: 300 (with early stopping)
+- **Batch Size**: 4
+- **Optimizer**: AdamW with weight decay (1e-4)
+- **Learning Rate**: 0.001 with ReduceLROnPlateau
+- **Early Stopping**: Patience of 50 epochs
+- **Gradient Clipping**: Max norm = 1.0
+
+
+## Performance Metrics
+
+The system tracks multiple metrics:
+
+### Training Metrics
+- **MAE** (Mean Absolute Error): Average time error in seconds
+- **RMSE** (Root Mean Squared Error): Penalizes large errors
+- **R² Score**: Proportion of variance explained
+
+### Prediction Metrics (Post-race)
+- **Mean Position Error**: Average positions off
+- **Mean Time Error**: Average time difference in seconds
+- **Top 3 Accuracy**: How many podium drivers predicted correctly
+- **Podium Exact Match**: Whether entire podium was correct
+
+## Contributing
+
+To improve the model:
+1. Add new features from FastF1 API
+2. Experiment with different architectures
+3. Tune hyperparameters
+4. Provide feedback on predictions
+5. Share insights from error analysis
+
+## License
+
+This project uses the FastF1 API which is subject to its own license terms.
+
+## Acknowledgments
+
+- **FastF1**: Excellent F1 data API
+- **PyTorch**: Deep learning framework
+- **Scikit-learn**: Machine learning utilities
+- **OpenWeatherMap**: Weather data API
+
+## Contact & Support
+
+For questions or issues:
+1. Check FastF1 documentation: https://docs.fastf1.dev/
+2. Review error logs in console
+3. Verify race configuration settings
+4. Ensure API keys are valid
 
 ## Credits
 
 Built independently but inspired by [@mar-antaya](https://github.com/mar-antaya/2025_f1_predictions.git). Data sources: FastF1 and OpenWeatherMap.
+
+---
+
+**Happy Racing! 🏎️**
+
+
 
 
