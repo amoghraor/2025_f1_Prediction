@@ -85,7 +85,7 @@ The model automatically improves through:
 
 ## Configuration
 
-Create a `race_config_week.py` file which has similar template to `race_config_tempelate.py`
+Create a `race_config_week.py` file which has similar template to `race_config_tempelate.py` and use the `diagnostic_tool.py` to confirm if the config file is accepted by the code or not.
 
 
 
